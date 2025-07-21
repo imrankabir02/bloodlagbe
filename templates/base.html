@@ -11,25 +11,29 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://bloodlagbe.pythonanywhere.com/" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     {% block extra_css %}{% endblock %}
     <style>
         html, body {
             height: 100%;
         }
         body {
-            background-color: #f8d7da;
+            background: linear-gradient(to right, #ffdde1, #ee9ca7);
             display: flex;
             flex-direction: column;
+            font-family: 'Roboto', sans-serif;
         }
         .container {
             flex: 1;
-            background-color: #fff;
-            border-radius: 2px;
-            padding: 4px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
         h1 {
-            color: #dc3545;
+            color: #d63384;
             font-weight: bold;
         }
         .table-dark {
@@ -37,12 +41,12 @@
             --bs-table-border-color: #c82333;
         }
         .btn-primary {
-            background-color: #dc3545;
-            border-color: #dc3545;
+            background-color: #d63384;
+            border-color: #d63384;
         }
         .btn-primary:hover {
-            background-color: #c82333;
-            border-color: #bd2130;
+            background-color: #b02a6c;
+            border-color: #a32663;
         }
         .btn-success {
             background-color: #28a745;
@@ -60,6 +64,13 @@
     </style>
 </head>
 <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'landing_page' %}" style="font-weight: 700;">
+                🩸 Blood Lagbe
+            </a>
+        </div>
+    </nav>
     <div class="container mt-5 p-4 border rounded">
         {% block content %}{% endblock %}
     </div>

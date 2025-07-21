@@ -4,49 +4,64 @@
 
 {% block content %}
 <div class="container text-center">
-    <h1 class="my-4">Welcome to Blood Lagbe</h1>
-    <p class="lead">Your one-stop platform for emergency blood requests and donations.</p>
-    <hr>
+    <div class="p-3 p-md-5 mb-4 bg-light rounded-3">
+        <div class="container-fluid py-3 py-md-5">
+            <h1 class="display-5 fw-bold">Welcome to Blood Lagbe</h1>
+            <p class="fs-5 fs-md-4">Your one-stop platform for emergency blood requests and donations.</p>
+        </div>
+    </div>
 
-    <div class="row my-4">
-        <div class="col-md-4">
-            <div class="card text-white bg-danger mb-3">
-                <div class="card-header">Pending Requests</div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ pending_requests }}</h5>
-                </div>
+    <div class="row align-items-md-stretch gy-4">
+        <div class="col-md-6">
+            <div class="h-100 p-3 p-md-5 text-white bg-danger rounded-3">
+                <h2>Pending Requests</h2>
+                <p class="display-5 display-md-4">{{ pending_requests }}</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-header">Fulfilled Requests</div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ fulfilled_requests }}</h5>
-                </div>
+        <div class="col-md-6">
+            <div class="h-100 p-3 p-md-5 bg-success text-white rounded-3">
+                <h2>Fulfilled Requests</h2>
+                <p class="display-5 display-md-4">{{ fulfilled_requests }}</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-white bg-primary mb-3">
-                <div class="card-header">Available Donors</div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Available Donors</h2>
+                </div>
                 <div class="card-body">
-                    <ul class="list-group list-group-flush">
+                    <div class="row">
                         {% for donor in available_donors %}
-                            <li class="list-group-item bg-primary text-white">{{ donor.blood_group }}: {{ donor.count }}</li>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card text-white bg-primary">
+                                <div class="card-header">{{ donor.blood_group }}</div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ donor.count }}</h5>
+                                </div>
+                            </div>
+                        </div>
                         {% endfor %}
-                    </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row mt-4 gy-3">
         <div class="col-md-6">
-            <a href="{% url 'donor_list' %}" class="btn btn-lg btn-block btn-primary mb-3">View Donors</a>
-            <a href="{% url 'donor_create' %}" class="btn btn-lg btn-block btn-success mb-3">Become a Donor</a>
+            <div class="d-grid gap-2">
+                <a href="{% url 'donor_list' %}" class="btn btn-primary btn-lg">View Donors</a>
+                <a href="{% url 'donor_create' %}" class="btn btn-success btn-lg">Become a Donor</a>
+            </div>
         </div>
         <div class="col-md-6">
-            <a href="{% url 'recipient_list' %}" class="btn btn-lg btn-block btn-info mb-3">View Requests</a>
-            <a href="{% url 'recipient_create' %}" class="btn btn-lg btn-block btn-warning mb-3">Request Blood</a>
+            <div class="d-grid gap-2">
+                <a href="{% url 'recipient_list' %}" class="btn btn-info btn-lg">View Requests</a>
+                <a href="{% url 'recipient_create' %}" class="btn btn-warning btn-lg">Request Blood</a>
+            </div>
         </div>
     </div>
 </div>

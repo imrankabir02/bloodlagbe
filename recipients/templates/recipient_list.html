@@ -19,9 +19,9 @@
         </div>
     </div>
 
-    <form method="get" class="mb-4">
+    <form method="get" class="mb-4" id="search-form">
         <div class="input-group">
-            <input type="text" name="q" class="form-control" placeholder="Search by hospital or blood group..." value="{{ request.GET.q }}">
+            <input type="text" name="q" id="search-input" class="form-control" placeholder="Search by hospital or blood group..." value="{{ request.GET.q }}">
             <button type="submit" class="btn btn-danger">Search</button>
         </div>
     </form>
@@ -39,7 +39,7 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="recipient-table-body">
                 {% for recipient in recipients %}
                 <tr>
                     <td>{{ recipient.patient_name }}</td>
@@ -67,4 +67,54 @@
             </tbody>
         </table>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let debounceTimeout;
+    document.getElementById('search-input').addEventListener('keyup', function() {
+        clearTimeout(debounceTimeout);
+        let query = this.value;
+        debounceTimeout = setTimeout(() => {
+            fetch(`/recipients/requests/?q=${encodeURIComponent(query)}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let tableBody = document.getElementById('recipient-table-body');
+                tableBody.innerHTML = '';
+                if (data.recipients.length > 0) {
+                    data.recipients.forEach(recipient => {
+                        let row = `<tr>
+                            <td>${recipient.patient_name}</td>
+                            <td>${recipient.blood_group}</td>
+                            <td>${recipient.hospital_name}</td>
+                            <td>${recipient.contact_number}</td>
+                            <td>${recipient.required_date}</td>
+                            <td>
+                                ${recipient.is_fulfilled ? '<span class="badge bg-success">Fulfilled</span>' : '<span class="badge bg-danger">Not Fulfilled</span>'}
+                            </td>
+                            <td>
+                                <a href="/recipients/request/${recipient.id}/update/" class="btn btn-primary btn-sm">Update</a>
+                                <a href="/recipients/request/${recipient.id}/toggle-status/" class="btn btn-secondary btn-sm">Toggle Status</a>
+                            </td>
+                        </tr>`;
+                        tableBody.innerHTML += row;
+                    });
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No active blood requests.</td></tr>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }, 300); // 300ms delay
+    });
+
+    document.getElementById('search-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+    });
+</script>
 {% endblock %}

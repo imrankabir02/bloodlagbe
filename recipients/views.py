@@ -31,6 +31,8 @@ class RecipientUpdateView(SuccessMessageMixin, UpdateView):
         context['title'] = 'Update Blood Request'
         return context
 
+from django.http import JsonResponse
+
 class RecipientListView(ListView):
     model = Recipient
     template_name = 'recipient_list.html'
@@ -44,6 +46,22 @@ class RecipientListView(ListView):
                 Q(hospital_name__icontains=query) | Q(blood_group__icontains=query)
             )
         return queryset
+
+    def render_to_response(self, context, **response_kwargs):
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            recipients_data = []
+            for recipient in context['recipients']:
+                recipients_data.append({
+                    'id': recipient.id,
+                    'patient_name': recipient.patient_name,
+                    'blood_group': recipient.blood_group,
+                    'hospital_name': recipient.hospital_name,
+                    'contact_number': recipient.contact_number,
+                    'required_date': recipient.required_date.strftime('%B %d, %Y'),
+                    'is_fulfilled': recipient.is_fulfilled,
+                })
+            return JsonResponse({'recipients': recipients_data})
+        return super().render_to_response(context, **response_kwargs)
 
 class RecipientToggleStatusView(View):
     def get(self, request, pk):
