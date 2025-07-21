@@ -40,6 +40,7 @@ class DonorListView(ListView):
             donors_data = []
             for donor in context['donors']:
                 donors_data.append({
+                    'id': donor.id,
                     'full_name': donor.full_name,
                     'blood_group': donor.blood_group,
                     'area': donor.area,

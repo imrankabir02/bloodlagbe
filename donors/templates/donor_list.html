@@ -70,7 +70,7 @@
         clearTimeout(debounceTimeout);
         let query = this.value;
         debounceTimeout = setTimeout(() => {
-            fetch(`/donors/list/?q=${encodeURIComponent(query)}`, {
+            fetch(`/list/?q=${encodeURIComponent(query)}`, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
@@ -90,10 +90,44 @@
                             <td>${donor.available ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</td>
                             <td>${donor.last_donation_date || 'N/A'}</td>
                             <td>
-                                <a href="/donors/${donor.id}/update/" class="btn btn-primary btn-sm">Update</a>
-                                <a href="/donors/${donor.id}/toggle-status/" class="btn btn-secondary btn-sm">Toggle Status</a>
+                                <a href="/${donor.id}/update/" class="btn btn-primary btn-sm">Update</a>
+                                <a href="/${donor.id}/toggle-status/" class="btn btn-secondary btn-sm">Toggle Status</a>
                             </td>
                         </tr>`;
+                        tableBody.innerHTML += row;
+                    });
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No donors found.</td></tr>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }, 300); // 300ms delay
+    });
+
+    document.getElementById('search-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+    });
+</script>
+{% endblock %}
+                        tableBody.innerHTML += row;
+                    });
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No donors found.</td></tr>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }, 300); // 300ms delay
+    });
+
+    document.getElementById('search-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+    });
+</script>
+{% endblock %}
                         tableBody.innerHTML += row;
                     });
                 } else {
