@@ -27,8 +27,7 @@ sitemaps = {
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('donors/', include('donors.urls')),
+    path('', include('donors.urls')),
     path('recipients/', include('recipients.urls')),
-    path('', RedirectView.as_view(url='/donors/list/', permanent=True)),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
 ]

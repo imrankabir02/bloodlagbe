@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to Blood Lagbe{% endblock %}
+
+{% block content %}
+<div class="container text-center">
+    <h1 class="my-4">Welcome to Blood Lagbe</h1>
+    <p class="lead">Your one-stop platform for emergency blood requests and donations.</p>
+    <hr>
+
+    <div class="row my-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-header">Pending Requests</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ pending_requests }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Fulfilled Requests</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ fulfilled_requests }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Available Donors</div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for donor in available_donors %}
+                            <li class="list-group-item bg-primary text-white">{{ donor.blood_group }}: {{ donor.count }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <a href="{% url 'donor_list' %}" class="btn btn-lg btn-block btn-primary mb-3">View Donors</a>
+            <a href="{% url 'donor_create' %}" class="btn btn-lg btn-block btn-success mb-3">Become a Donor</a>
+        </div>
+        <div class="col-md-6">
+            <a href="{% url 'recipient_list' %}" class="btn btn-lg btn-block btn-info mb-3">View Requests</a>
+            <a href="{% url 'recipient_create' %}" class="btn btn-lg btn-block btn-warning mb-3">Request Blood</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

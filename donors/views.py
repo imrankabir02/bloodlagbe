@@ -1,12 +1,13 @@
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
-from django.views.generic import CreateView, ListView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView, TemplateView
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
 from .models import Donor
+from recipients.models import Recipient
 from .forms import DonorForm
-from django.db.models import Q
+from django.db.models import Q, Count
 
 class DonorCreateView(SuccessMessageMixin, CreateView):
     model = Donor
@@ -67,3 +68,13 @@ class DonorToggleStatusView(View):
         donor.available = not donor.available
         donor.save()
         return redirect('donor_list')
+
+class LandingPageView(TemplateView):
+    template_name = 'landing_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pending_requests'] = Recipient.objects.filter(is_fulfilled=False).count()
+        context['fulfilled_requests'] = Recipient.objects.filter(is_fulfilled=True).count()
+        context['available_donors'] = Donor.objects.filter(available=True).values('blood_group').annotate(count=Count('id'))
+        return context
