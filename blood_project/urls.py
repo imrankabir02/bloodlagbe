@@ -17,10 +17,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
+from django.contrib.sitemaps.views import sitemap
+from .sitemaps import DonorSitemap, RecipientSitemap
+
+sitemaps = {
+    'donors': DonorSitemap,
+    'recipients': RecipientSitemap,
+}
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('donors/', include('donors.urls')),
     path('recipients/', include('recipients.urls')),
     path('', RedirectView.as_view(url='/donors/list/', permanent=True)),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
 ]
