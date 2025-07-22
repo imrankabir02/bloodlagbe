@@ -2,12 +2,15 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
 from django.views.generic import CreateView, ListView, UpdateView, TemplateView
 from django.urls import reverse_lazy
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from .models import Donor
 from recipients.models import Recipient
-from .forms import DonorForm
+from .forms import DonorForm, CSVUploadForm
+from .utils import normalize_donor_data
 from django.db.models import Q, Count
+import csv
+import io
 
 class DonorCreateView(SuccessMessageMixin, CreateView):
     model = Donor
@@ -25,6 +28,7 @@ class DonorListView(ListView):
     model = Donor
     template_name = 'donor_list.html'
     context_object_name = 'donors'
+    paginate_by = 10
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -79,3 +83,27 @@ class LandingPageView(TemplateView):
         context['fulfilled_requests'] = Recipient.objects.filter(is_fulfilled=True).count()
         context['available_donors'] = Donor.objects.filter(available=True).values('blood_group').annotate(count=Count('id'))
         return context
+
+def upload_csv(request):
+    if request.method == 'POST':
+        form = CSVUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            csv_file = request.FILES['csv_file']
+            decoded_file = csv_file.read().decode('utf-8')
+            io_string = io.StringIO(decoded_file)
+            reader = csv.DictReader(io_string)
+            donor_data = list(reader)
+
+            processed_data = normalize_donor_data(donor_data)
+
+            for row in processed_data:
+                Donor.objects.get_or_create(
+                    full_name=row['full_name'],
+                    phone_number=row['phone_number'],
+                    blood_group=row['blood_group'],
+                    area=row['area']
+                )
+            return redirect('donor_list')
+    else:
+        form = CSVUploadForm()
+    return render(request, 'upload_csv.html', {'form': form})

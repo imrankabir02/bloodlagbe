@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import DonorCreateView, DonorListView, DonorUpdateView, DonorToggleStatusView, LandingPageView
+from .views import DonorCreateView, DonorListView, DonorUpdateView, DonorToggleStatusView, LandingPageView, upload_csv
 
 urlpatterns = [
     path('', LandingPageView.as_view(), name='landing_page'),
@@ -7,4 +7,5 @@ urlpatterns = [
     path('list/', DonorListView.as_view(), name='donor_list'),
     path('<int:pk>/update/', DonorUpdateView.as_view(), name='donor_update'),
     path('<int:pk>/toggle-status/', DonorToggleStatusView.as_view(), name='donor_toggle_status'),
+    path('upload-csv/', upload_csv, name='upload_csv'),
 ]

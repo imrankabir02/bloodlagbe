@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Donors from CSV{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Upload Donors from CSV File</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="csv_file" class="form-label">Select CSV File</label>
+            <input type="file" name="csv_file" class="form-control" id="csv_file" accept=".csv" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+</div>
+{% endblock %}

@@ -29,3 +29,6 @@ class DonorForm(forms.ModelForm):
                 if Donor.objects.filter(phone_number__endswith=phone_number_last_11, blood_group=blood_group).exists():
                     raise forms.ValidationError("This donor with this phone number and blood group already exists.")
         return cleaned_data
+
+class CSVUploadForm(forms.Form):
+    csv_file = forms.FileField()

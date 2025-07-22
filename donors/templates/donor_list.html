@@ -60,50 +60,127 @@
             {% endfor %}
             </tbody>
         </table>
+        <div id="loading" style="display: none;" class="text-center">
+            <p>Loading...</p>
+        </div>
     </div>
+
+    {% if is_paginated %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active" aria-current="page">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a></li>
+        </ul>
+    </nav>
+    {% endif %}
 {% endblock %}
 
 {% block extra_js %}
 <script>
     let debounceTimeout;
-    document.getElementById('search-input').addEventListener('keyup', function() {
+    const searchInput = document.getElementById('search-input');
+    const tableBody = document.getElementById('donor-table-body');
+    const loading = document.getElementById('loading');
+    let page = 1;
+    let hasNext = true;
+
+    function loadDonors(query = '', nextPage = 1) {
+        loading.style.display = 'block';
+        if (nextPage === 1) {
+            tableBody.innerHTML = '';
+        }
+
+        fetch(`/list/?q=${encodeURIComponent(query)}&page=${nextPage}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.donors.length > 0) {
+                data.donors.forEach(donor => {
+                    let row = `<tr>
+                        <td>${donor.full_name}</td>
+                        <td>${donor.blood_group}</td>
+                        <td>${donor.area}</td>
+                        <td>${donor.phone_number}</td>
+                        <td>${donor.available ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</td>
+                        <td>${donor.last_donation_date || 'N/A'}</td>
+                        <td>
+                            <a href="/${donor.id}/update/" class="btn btn-primary btn-sm">Update</a>
+                            <a href="/${donor.id}/toggle-status/" class="btn btn-secondary btn-sm">Toggle Status</a>
+                        </td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+                page = nextPage;
+                hasNext = data.has_next;
+            } else {
+                if (nextPage === 1) {
+                    tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No donors found.</td></tr>';
+                }
+                hasNext = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        })
+        .finally(() => {
+            loading.style.display = 'none';
+        });
+    }
+
+    searchInput.addEventListener('keyup', function() {
         clearTimeout(debounceTimeout);
         let query = this.value;
         debounceTimeout = setTimeout(() => {
-            fetch(`/list/?q=${encodeURIComponent(query)}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data); // Log data to the console for debugging
-                let tableBody = document.getElementById('donor-table-body');
-                tableBody.innerHTML = '';
-                if (data.donors.length > 0) {
-                    data.donors.forEach(donor => {
-                        let row = `<tr>
-                            <td>${donor.full_name}</td>
-                            <td>${donor.blood_group}</td>
-                            <td>${donor.area}</td>
-                            <td>${donor.phone_number}</td>
-                            <td>${donor.available ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</td>
-                            <td>${donor.last_donation_date || 'N/A'}</td>
-                            <td>
-                                <a href="/${donor.id}/update/" class="btn btn-primary btn-sm">Update</a>
-                                <a href="/${donor.id}/toggle-status/" class="btn btn-secondary btn-sm">Toggle Status</a>
-                            </td>
-                        </tr>`;
-                        tableBody.innerHTML += row;
-                    });
-                } else {
-                    tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No donors found.</td></tr>';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }, 300); // 300ms delay
+            loadDonors(query, 1);
+        }, 300);
+    });
+
+    window.addEventListener('scroll', () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 && hasNext && !loading.style.display) {
+            loadDonors(searchInput.value, page + 1);
+        }
     });
 
     document.getElementById('search-form').addEventListener('submit', function(e) {

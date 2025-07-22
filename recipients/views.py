@@ -37,6 +37,7 @@ class RecipientListView(ListView):
     model = Recipient
     template_name = 'recipient_list.html'
     context_object_name = 'recipients'
+    paginate_by = 10
 
     def get_queryset(self):
         queryset = super().get_queryset()

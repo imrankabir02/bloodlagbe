@@ -14,8 +14,8 @@ class Recipient(models.Model):
     )
 
     patient_name = models.CharField(_("Patient Name"), max_length=100)
-    blood_group = models.CharField(_("Blood Group"), max_length=3, choices=BLOOD_GROUPS)
-    hospital_name = models.CharField(_("Hospital Name"), max_length=150)
+    blood_group = models.CharField(_("Blood Group"), max_length=3, choices=BLOOD_GROUPS, db_index=True)
+    hospital_name = models.CharField(_("Hospital Name"), max_length=150, db_index=True)
     contact_number = models.CharField(_("Contact Number"), max_length=20)
     required_date = models.DateField(_("Required Date"))
     is_fulfilled = models.BooleanField(_("Fulfilled"), default=False)
